@@ -1,0 +1,11 @@
+/* signup component */
+.signup {
+    height: 500px;
+}
+
+/* Signup.module.css */
+.signup {
+    height: 500px;
+    background-color: lightgreen;
+    border: 2px solid red;
+}
