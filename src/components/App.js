@@ -7,6 +7,7 @@ function App() {
     <Layout>
       {/* <Home /> */}
       <Signup />
+      {/* <Login /> */}
     </Layout>
   );
 }

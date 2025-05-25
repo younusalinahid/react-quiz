@@ -1,0 +1,10 @@
+/* Global CSS */
+html,
+body {
+    margin: 0;
+    padding: 0;
+    height: 100vh;
+    overflow: hidden;
+    /* eta scroll ke off kore dey */
+    font-family: sans-serif;
+}

@@ -1,20 +1,20 @@
-/* illustration component */
-.illustration {
-    padding: 5rem 2rem;
+.column {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 2rem;
+    gap: 2rem;
+    flex-direction: row;
 }
 
-.illustration img {
-    max-width: 80%;
-}
-
-/* @media only screen and (max-width: 1023px) {
-    .illustration {
-        display: none;
+@media (max-width: 767px) {
+    .column {
+        flex-direction: column;
     }
-} */
 
-@media only screen and (max-width: 767px) {
     .illustration {
         display: none;
+        /* optional */
     }
 }
