@@ -1,84 +1,78 @@
-import { useState } from "react";
-import Alert from "./components/Alert";
-import Button from "./components/Button/Button";
-import ListGroup from "./components/ListGroup/ListGroup";
-import "./App.css";
-import Like from "./components/Like";
-import NavBar from "./components/NavBar";
-import Cart from "./components/Cart";
-import Form from "./components/Form";
-import ExpenseList from "./expense-tracker/components/ExpenseList";
-import ExpenseFilter from "./expense-tracker/components/ExpenseFilter";
-import ExpenseForm from "./expense-tracker/components/ExpenseForm";
-import categories from "./expense-tracker/categories";
+import { useEffect, useState } from "react";
+import { CanceledError } from "./services/api-client";
+import userService, { User } from "./services/user-service";
+import useUsers from "./hooks/useUsers";
 
 function App() {
-  const [isVisible, setVisibility] = useState(false);
-  const [isApproved, setApproved] = useState(true);
-  const items = ["New York", "San Francisco", "Tokyo", "London", "Paris"];
-  const [cartItems, setCartItems] = useState(["Product1", "Product2"]);
+  const { users, error, isLoading, setUsers, setError } = useUsers();
 
-  // const handleSelectItem = (item: string) => {
-  //   console.log(item);
-  // };
+  const deleteUser = (user: User) => {
+    const originalUsers = [...users];
+    setUsers(users.filter((u) => u.id !== user.id));
 
-  // let count = 0;
-  // const handleClick = () => {
-  //   setVisibility(true);
-  //   count++;
-  //   console.log(isVisible);
-  // };
+    userService.delete(user.id).catch((err) => {
+      setError(err.message);
+      setUsers(originalUsers);
+    });
+  };
 
-  const [selectedCategory, setSelectedCategory] = useState("");
-  const [expenses, setExpenses] = useState([
-    { id: 1, description: "aaa", amount: 10, category: "Utilities" },
-    { id: 2, description: "bbb", amount: 15, category: "Groceries" },
-    { id: 3, description: "ccc", amount: 20, category: "Entertainment" },
-    { id: 4, description: "ddd", amount: 50, category: "Utilities" },
-  ]);
+  const addUser = () => {
+    const originalUsers = [...users];
+    const newUser = { id: 0, name: "Mosh" };
+    setUsers([newUser, ...users]);
 
-  const visibleExpenses = selectedCategory
-    ? expenses.filter((e) => e.category === selectedCategory)
-    : expenses;
+    userService
+      .create(newUser)
+      .then(({ data: savedUser }) => setUsers([savedUser, ...users]))
+      .catch((err) => {
+        setError(err.message);
+        setUsers(originalUsers);
+      });
+  };
+
+  const updateUser = (user: User) => {
+    const originalUsers = [...users];
+    const updatedUser = { ...user, name: user.name + "!" };
+    setUsers(users.map((u) => (u.id === user.id ? updatedUser : u)));
+
+    userService.update(updatedUser).catch((err) => {
+      setError(err.message);
+      setUsers(originalUsers);
+    });
+  };
 
   return (
-    <div>
-      {/* <ListGroup
-        items={items}
-        heading="Cities"
-        onSelectItem={handleSelectItem}
-      /> */}
-      {/* {alertVisible && (
-        <Alert onClose={() => setAlertVisiblility(false)}>My Alert</Alert>
-      )}
-      <Button color="secondary" onClick={() => setAlertVisiblility(true)}>
-        My Button
-      </Button> */}
-
-      {/* <ListGroup heading="Miami" items={items} onSelectItem={() => {}} /> */}
-      {/* <Like onClick={() => console.log("Clicked")} /> */}
-      {/* <NavBar cartItemsCount={cartItems.length} />
-      <Cart cartItems={cartItems} onClear={() => setCartItems([])} /> */}
-
-      {/* <Form /> */}
-      <div className="mb-5">
-        <ExpenseForm
-          onSubmit={(expense) =>
-            setExpenses([...expenses, { ...expense, id: expenses.length + 1 }])
-          }
-        />
-      </div>
-      <div className="mb-3">
-        <ExpenseFilter
-          onSelectCategory={(category) => setSelectedCategory(category)}
-        />
-      </div>
-
-      <ExpenseList
-        expenses={visibleExpenses}
-        onDelete={(id) => setExpenses(expenses.filter((e) => e.id !== id))}
-      />
-    </div>
+    <>
+      {error && <p className="text-danger">{error}</p>}
+      {isLoading && <div className="spinner-border"></div>}
+      <button className="btn btn-primary mb-3" onClick={addUser}>
+        Add
+      </button>
+      <ul className="list-group">
+        {users.map((user) => (
+          <li
+            key={user.id}
+            className="list-group-item d-flex justify-content-between"
+          >
+            {user.name}
+            <div>
+              <button
+                className="btn btn-outline-secondary mx-1"
+                onClick={() => updateUser(user)}
+              >
+                Update
+              </button>
+              <button
+                className="btn btn-outline-danger"
+                onClick={() => deleteUser(user)}
+              >
+                Delete
+              </button>
+            </div>
+          </li>
+        ))}
+      </ul>
+    </>
   );
 }
 
